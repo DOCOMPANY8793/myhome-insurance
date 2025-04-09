@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>화재보험 신청 확인</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    label, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>화재보험 신청 확인</h2>
+  <form id="checkForm">
+    <label for="name">이름</label>
+    <input type="text" id="name" required>
+
+    <label for="phone">연락처 (숫자 포함하여 입력)</label>
+    <input type="text" id="phone" required>
+
+    <label for="dong">동</label>
+    <input type="text" id="dong" required>
+
+    <label for="ho">호수</label>
+    <input type="text" id="ho" required>
+
+    <button type="submit">확인하기</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    let data = [];
+
+    async function loadData() {
+      const res = await fetch('한신더휴펜타시티.csv');
+      const text = await res.text();
+      const lines = text.split('\n');
+      for (let i = 1; i < lines.length; i++) {
+        const [dong, ho, name, phone] = lines[i].split(',');
+        if (dong && ho && name && phone) {
+          data.push({ dong: dong.trim(), ho: ho.trim(), name: name.trim(), phone: phone.trim() });
+        }
+      }
+    }
+
+    document.getElementById('checkForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const dong = document.getElementById('dong').value.trim();
+      const ho = document.getElementById('ho').value.trim();
+
+      const found = data.find(row =>
+        row.name === name &&
+        row.phone === phone &&
+        row.dong === dong &&
+        row.ho === ho
+      );
+
+      const result = document.getElementById('result');
+      if (found) {
+        result.textContent = '✅ 신청 완료되었습니다.';
+        result.style.color = 'green';
+      } else {
+        result.textContent = '❌ 입력하신 정보로는 확인되지 않습니다.';
+        result.style.color = 'red';
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
